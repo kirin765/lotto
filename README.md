@@ -2,7 +2,7 @@
 
 동행복권 로또 6/45 당첨번호를 확인할 수 있는 모바일 최적화 웹사이트입니다.
 
-> **[lotto-korea.vercel.app](https://lotto-korea.vercel.app)**
+> 운영 주소는 배포 환경의 `NEXT_PUBLIC_SITE_URL` 값으로 설정됩니다.
 
 ## ✨ 주요 기능
 
@@ -47,6 +47,9 @@ npm install
 
 # 개발 서버
 npm run dev
+
+# (선택) SEO canonical/sitemap 기준 도메인
+export NEXT_PUBLIC_SITE_URL="https://your-domain.example"
 
 # 프로덕션 빌드
 npm run build

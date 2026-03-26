@@ -26,6 +26,11 @@ function parseLottoResponse(data: DhlotteryApiResponse): LottoRound {
   };
 }
 
+export type FetchLottoRoundResult =
+  | { status: "success"; round: LottoRound }
+  | { status: "not_found" }
+  | { status: "error" };
+
 function parseNaverHtml(html: string): DhlotteryApiResponse | null {
   const roundMatch = html.match(
     /data-text="(\d+)회차\s*\((\d{4}\.\d{2}\.\d{2})\.\)"/
@@ -127,13 +132,19 @@ async function fetchViaProxy(
 
 export async function fetchLottoRound(
   roundNo: number
-): Promise<LottoRound | null> {
+): Promise<FetchLottoRoundResult> {
+  if (roundNo < 1) return { status: "not_found" };
+
   // 1차: 네이버 검색 스크래핑 (서버 사이드)
   let data = await fetchFromNaver(roundNo);
+  if (data && data.drwNo !== roundNo) return { status: "not_found" };
+
   // 2차: 자체 프록시 경유
   if (!data) data = await fetchViaProxy(roundNo);
-  if (!data) return null;
-  return parseLottoResponse(data);
+  if (data && data.drwNo !== roundNo) return { status: "not_found" };
+
+  if (!data) return { status: "error" };
+  return { status: "success", round: parseLottoResponse(data) };
 }
 
 export async function fetchLatestRound(): Promise<LottoRound | null> {
@@ -144,7 +155,7 @@ export async function fetchLatestRound(): Promise<LottoRound | null> {
   const round = estimateLatestRound();
   for (let i = 0; i < 3; i++) {
     const result = await fetchLottoRound(round - i);
-    if (result) return result;
+    if (result.status === "success") return result.round;
   }
   return null;
 }
@@ -153,12 +164,17 @@ export async function fetchMultipleRounds(
   startRound: number,
   count: number
 ): Promise<LottoRound[]> {
-  const promises: Promise<LottoRound | null>[] = [];
+  const promises: Promise<FetchLottoRoundResult>[] = [];
   for (let i = 0; i < count; i++) {
     const roundNo = startRound - i;
     if (roundNo < 1) break;
     promises.push(fetchLottoRound(roundNo));
   }
   const results = await Promise.all(promises);
-  return results.filter((r): r is LottoRound => r !== null);
+  return results
+    .filter(
+      (result): result is { status: "success"; round: LottoRound } =>
+        result.status === "success"
+    )
+    .map((result) => result.round);
 }

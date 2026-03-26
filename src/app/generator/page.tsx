@@ -8,6 +8,7 @@ export const metadata: Metadata = generateMeta({
   description:
     "로또 6/45 번호를 랜덤으로 생성해보세요. 1~45 중 6개 번호를 자동으로 추첨합니다.",
   path: "/generator",
+  images: ["/opengraph-image"],
 });
 
 export default function GeneratorPage() {

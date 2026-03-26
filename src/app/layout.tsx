@@ -36,9 +36,18 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} - 동행복권 로또 6/45`,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
+    images: [
+      {
+        url: `${SITE_URL}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    images: [`${SITE_URL}/twitter-image`],
   },
   robots: {
     index: true,

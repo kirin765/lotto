@@ -11,6 +11,7 @@ export const metadata: Metadata = generateMeta({
   description:
     "로또 6/45 번호별 출현 빈도, 최근 출현 회차, 평균 출현 간격 등 상세 통계를 확인하세요.",
   path: "/stats",
+  images: ["/opengraph-image"],
 });
 
 export const revalidate = 86400;
