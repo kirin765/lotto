@@ -1,10 +1,62 @@
 import { NextResponse } from "next/server";
 
-// Vercel 한국 리전에서 실행 → 동행복권 API IP 차단 우회
 export const runtime = "edge";
-export const preferredRegion = "icn1";
 
-const API_BASE = "https://www.dhlottery.co.kr/common.do";
+const NAVER_SEARCH = "https://m.search.naver.com/search.naver";
+const UA =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1";
+
+function parseNaverHtml(html: string) {
+  // 회차
+  const roundMatch = html.match(/data-text="(\d+)회차\s*\((\d{4}\.\d{2}\.\d{2})\.\)"/);
+  if (!roundMatch) return null;
+  const drwNo = parseInt(roundMatch[1], 10);
+  const drwNoDate = roundMatch[2].replace(/\./g, "-");
+
+  // 당첨번호 (class="ball typeN">숫자)
+  const ballMatches = [...html.matchAll(/class="ball type\d">(\d+)/g)];
+  if (ballMatches.length < 6) return null;
+
+  // 보너스 번호
+  const bonusMatch = html.match(/bonus_number">\s*<span class="ball type\d">(\d+)/);
+  const bnusNo = bonusMatch ? parseInt(bonusMatch[1], 10) : 0;
+
+  // 메인 번호 (보너스 제외)
+  const allNums = ballMatches.map((m) => parseInt(m[1], 10));
+  const mainNums = allNums.slice(0, 6);
+
+  // 1등 당첨금 & 당첨자 수
+  const prizeMatch = html.match(
+    /1등 당첨금[\s\S]*?([\d,]+)\s*원[\s\S]*?당첨 복권수\s*(\d+)/
+  );
+  const firstWinamnt = prizeMatch
+    ? parseInt(prizeMatch[1].replace(/,/g, ""), 10)
+    : 0;
+  const firstPrzwnerCo = prizeMatch ? parseInt(prizeMatch[2], 10) : 0;
+
+  // 총 판매금액 (첫 번째 큰 금액)
+  const amounts = [...html.matchAll(/([\d,]+)원/g)].map((m) =>
+    parseInt(m[1].replace(/,/g, ""), 10)
+  );
+  const totSellamnt = amounts.length > 0 ? Math.max(...amounts) : 0;
+
+  return {
+    returnValue: "success",
+    drwNo,
+    drwNoDate,
+    drwtNo1: mainNums[0],
+    drwtNo2: mainNums[1],
+    drwtNo3: mainNums[2],
+    drwtNo4: mainNums[3],
+    drwtNo5: mainNums[4],
+    drwtNo6: mainNums[5],
+    bnusNo,
+    firstPrzwnerCo,
+    firstWinamnt,
+    firstAccumamnt: firstWinamnt * firstPrzwnerCo,
+    totSellamnt,
+  };
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,42 +67,31 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch(
-      `${API_BASE}?method=getLottoNumber&drwNo=${drwNo}`,
-      {
-        redirect: "manual",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-        },
-      }
-    );
-
-    // 302 리다이렉트 = IP 차단
-    if (res.status === 302) {
-      return NextResponse.json(
-        { error: "API blocked (region)" },
-        { status: 502 }
-      );
-    }
-
+    const query =
+      drwNo === "latest"
+        ? "로또당첨번호"
+        : `로또 ${drwNo}회 당첨번호`;
+    const url = `${NAVER_SEARCH}?where=m&query=${encodeURIComponent(query)}`;
+    const res = await fetch(url, { headers: { "User-Agent": UA } });
     if (!res.ok) {
+      return NextResponse.json({ error: "Naver fetch failed" }, { status: 502 });
+    }
+
+    const html = await res.text();
+    const data = parseNaverHtml(html);
+    if (!data) {
       return NextResponse.json(
-        { error: "API error" },
-        { status: res.status }
+        { error: "Parse failed", returnValue: "fail" },
+        { status: 404 }
       );
     }
 
-    const data = await res.json();
     return NextResponse.json(data, {
       headers: {
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to fetch" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
   }
 }

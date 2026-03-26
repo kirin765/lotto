@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { LottoRound, DhlotteryApiResponse } from "@/types/lotto";
-import { formatDate, estimateLatestRound as estimateRound } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import LottoBalls from "@/components/LottoBalls";
 import PrizeTable from "@/components/PrizeTable";
 import RoundNav from "@/components/RoundNav";
@@ -36,21 +36,18 @@ export default function HomeContent({ serverData, latestRound }: HomeContentProp
   const fetchFromProxy = useCallback(async () => {
     setLoading(true);
     setError(false);
-    const est = estimateRound();
-    for (let i = 0; i < 3; i++) {
-      try {
-        const res = await fetch(`/api/lotto?drwNo=${est - i}`);
-        if (!res.ok) continue;
-        const json = await res.json();
-        if (json.returnValue === "success") {
-          setRound(parseResponse(json));
-          setLoading(false);
-          return;
-        }
-      } catch { /* try next */ }
+    try {
+      // latest 키워드로 최신 회차 조회
+      const res = await fetch("/api/lotto?drwNo=latest");
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      if (json.returnValue !== "success") throw new Error();
+      setRound(parseResponse(json));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
     }
-    setError(true);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
