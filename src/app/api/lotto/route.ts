@@ -25,16 +25,21 @@ function parseNaverHtml(html: string) {
   const allNums = ballMatches.map((m) => parseInt(m[1], 10));
   const mainNums = allNums.slice(0, 6);
 
-  // 1등 당첨금 & 당첨자 수
-  const prizeMatch = html.match(
-    /1등 당첨금[\s\S]*?([\d,]+)\s*원[\s\S]*?당첨 복권수\s*(\d+)/
-  );
-  const firstWinamnt = prizeMatch
-    ? parseInt(prizeMatch[1].replace(/,/g, ""), 10)
-    : 0;
-  const firstPrzwnerCo = prizeMatch ? parseInt(prizeMatch[2], 10) : 0;
+  // 1~5등 당첨 정보 파싱
+  const prizePattern =
+    /<th scope="row" rowspan="\d+">(\d)등<\/th>\s*<td class="sub_title">총 당첨금<\/td>\s*<td>([\d,]+)원<\/td>[\s\S]*?당첨 복권수<\/td>\s*<td>([\d,]+)개<\/td>[\s\S]*?1개당 당첨금<\/td>\s*<td>([\d,]+)원<\/td>/g;
+  const prizes = [...html.matchAll(prizePattern)].map((m) => ({
+    rank: parseInt(m[1], 10),
+    totalAmount: parseInt(m[2].replace(/,/g, ""), 10),
+    winnerCount: parseInt(m[3].replace(/,/g, ""), 10),
+    perAmount: parseInt(m[4].replace(/,/g, ""), 10),
+  }));
 
-  // 총 판매금액 (첫 번째 큰 금액)
+  const first = prizes.find((p) => p.rank === 1);
+  const firstWinamnt = first?.perAmount ?? 0;
+  const firstPrzwnerCo = first?.winnerCount ?? 0;
+
+  // 총 판매금액
   const amounts = [...html.matchAll(/([\d,]+)원/g)].map((m) =>
     parseInt(m[1].replace(/,/g, ""), 10)
   );
@@ -55,6 +60,7 @@ function parseNaverHtml(html: string) {
     firstWinamnt,
     firstAccumamnt: firstWinamnt * firstPrzwnerCo,
     totSellamnt,
+    prizes,
   };
 }
 

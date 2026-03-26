@@ -20,6 +20,7 @@ function parseResponse(data: DhlotteryApiResponse): LottoRound {
     totalSalesAmount: data.totSellamnt,
     firstPrizeAmount: data.firstWinamnt,
     firstPrizeWinners: data.firstPrzwnerCo,
+    prizes: data.prizes ?? [],
   };
 }
 

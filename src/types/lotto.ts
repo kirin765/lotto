@@ -1,3 +1,10 @@
+export interface PrizeTier {
+  rank: number;
+  totalAmount: number;
+  winnerCount: number;
+  perAmount: number;
+}
+
 export interface LottoRound {
   roundNo: number;
   drawDate: string;
@@ -6,6 +13,7 @@ export interface LottoRound {
   totalSalesAmount: number;
   firstPrizeAmount: number;
   firstPrizeWinners: number;
+  prizes: PrizeTier[];
 }
 
 export interface NumberStat {
@@ -30,4 +38,5 @@ export interface DhlotteryApiResponse {
   firstWinamnt: number;
   totSellamnt: number;
   firstAccumamnt: number;
+  prizes?: PrizeTier[];
 }
