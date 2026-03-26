@@ -3,7 +3,8 @@ import { fetchMultipleRounds } from "@/lib/api";
 import { estimateLatestRound } from "@/lib/utils";
 import { generateMeta } from "@/lib/seo";
 import Breadcrumb from "@/components/Breadcrumb";
-import StatsClient from "./StatsClient";
+import StatsContent from "./StatsContent";
+import type { NumberStat } from "@/types/lotto";
 
 export const metadata: Metadata = generateMeta({
   title: "번호 통계",
@@ -14,12 +15,7 @@ export const metadata: Metadata = generateMeta({
 
 export const revalidate = 86400;
 
-export default async function StatsPage() {
-  const latestRound = estimateLatestRound();
-  const count = Math.min(latestRound, 100);
-  const rounds = await fetchMultipleRounds(latestRound, count);
-
-  // 번호별 통계 계산
+function computeStats(rounds: { roundNo: number; numbers: number[] }[]): NumberStat[] {
   const statsMap = new Map<number, { freq: number; last: number; appearances: number[] }>();
   for (let n = 1; n <= 45; n++) {
     statsMap.set(n, { freq: 0, last: 0, appearances: [] });
@@ -34,16 +30,22 @@ export default async function StatsPage() {
     }
   }
 
-  const stats = Array.from(statsMap.entries()).map(([number, data]) => {
+  return Array.from(statsMap.entries()).map(([number, data]) => {
     const sorted = data.appearances.sort((a, b) => a - b);
     let totalInterval = 0;
     for (let i = 1; i < sorted.length; i++) {
       totalInterval += sorted[i] - sorted[i - 1];
     }
     const avgInterval = sorted.length > 1 ? Math.round(totalInterval / (sorted.length - 1)) : 0;
-
     return { number, frequency: data.freq, lastAppeared: data.last, avgInterval };
   });
+}
+
+export default async function StatsPage() {
+  const latestRound = estimateLatestRound();
+  const count = Math.min(latestRound, 100);
+  const rounds = await fetchMultipleRounds(latestRound, count);
+  const stats = rounds.length > 0 ? computeStats(rounds) : [];
 
   return (
     <>
@@ -52,7 +54,7 @@ export default async function StatsPage() {
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
         최근 {count}회차 기준 번호별 출현 통계
       </p>
-      <StatsClient stats={stats} />
+      <StatsContent serverStats={stats} count={count} latestRound={latestRound} />
     </>
   );
 }

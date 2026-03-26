@@ -1,7 +1,8 @@
 import type { LottoRound, DhlotteryApiResponse } from "@/types/lotto";
 import { estimateLatestRound, sortNumbers } from "./utils";
+import { SITE_URL } from "./constants";
 
-const API_BASE = "https://www.dhlottery.co.kr/common.do";
+const DHLOTTERY_API = "https://www.dhlottery.co.kr/common.do";
 
 function parseLottoResponse(data: DhlotteryApiResponse): LottoRound {
   return {
@@ -22,21 +23,56 @@ function parseLottoResponse(data: DhlotteryApiResponse): LottoRound {
   };
 }
 
-export async function fetchLottoRound(
-  roundNo: number
-): Promise<LottoRound | null> {
+/** 동행복권 직접 호출 (redirect:manual로 302 감지) */
+async function fetchDirect(roundNo: number): Promise<DhlotteryApiResponse | null> {
   try {
     const res = await fetch(
-      `${API_BASE}?method=getLottoNumber&drwNo=${roundNo}`,
-      { next: { revalidate: roundNo < estimateLatestRound() ? false : 3600 } }
+      `${DHLOTTERY_API}?method=getLottoNumber&drwNo=${roundNo}`,
+      {
+        redirect: "manual",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+        next: { revalidate: roundNo < estimateLatestRound() ? false : 3600 },
+      }
     );
-    if (!res.ok) return null;
+    if (res.status === 302 || !res.ok) return null;
     const data: DhlotteryApiResponse = await res.json();
     if (data.returnValue !== "success") return null;
-    return parseLottoResponse(data);
+    return data;
   } catch {
     return null;
   }
+}
+
+/** 자체 API Route를 통한 프록시 호출 (Vercel ICN 리전) */
+async function fetchViaProxy(roundNo: number): Promise<DhlotteryApiResponse | null> {
+  try {
+    const base = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : SITE_URL;
+    const res = await fetch(`${base}/api/lotto?drwNo=${roundNo}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.error || data.returnValue !== "success") return null;
+    return data as DhlotteryApiResponse;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchLottoRound(
+  roundNo: number
+): Promise<LottoRound | null> {
+  // 1차: 동행복권 직접 호출
+  let data = await fetchDirect(roundNo);
+  // 2차: 자체 프록시 경유 (한국 리전)
+  if (!data) data = await fetchViaProxy(roundNo);
+  if (!data) return null;
+  return parseLottoResponse(data);
 }
 
 export async function fetchLatestRound(): Promise<LottoRound | null> {

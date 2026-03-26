@@ -1,5 +1,5 @@
 export const SITE_NAME = "로또 당첨번호";
-export const SITE_URL = "https://lotto-korea.vercel.app";
+export const SITE_URL = "https://lotto-peach.vercel.app";
 export const SITE_DESCRIPTION =
   "동행복권 로또 6/45 최신 당첨번호 확인, 회차별 조회, 번호 통계, 번호 생성기를 제공합니다.";
 
