@@ -68,7 +68,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const drwNo = searchParams.get("drwNo");
 
-  if (!drwNo || isNaN(Number(drwNo))) {
+  if (!drwNo || (drwNo !== "latest" && isNaN(Number(drwNo)))) {
     return NextResponse.json({ error: "Invalid drwNo" }, { status: 400 });
   }
 

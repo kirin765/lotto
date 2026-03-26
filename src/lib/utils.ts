@@ -36,6 +36,25 @@ export function estimateLatestRound(): number {
   return weeks + 1;
 }
 
+export function estimateDrawDate(roundNo: number): string {
+  if (roundNo < 1) return FIRST_DRAW_DATE.toISOString().slice(0, 10);
+  const drawTime = FIRST_DRAW_DATE.getTime() + (roundNo - 1) * DRAW_INTERVAL_MS;
+  const drawDate = new Date(drawTime);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .formatToParts(drawDate)
+    .reduce<Record<string, string>>((acc, part) => {
+      if (part.type !== "literal") acc[part.type] = part.value;
+      return acc;
+    }, {});
+
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 export function sortNumbers(nums: number[]): number[] {
   return [...nums].sort((a, b) => a - b);
 }

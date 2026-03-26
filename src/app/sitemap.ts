@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/constants";
-import { estimateLatestRound } from "@/lib/utils";
+import { estimateDrawDate, estimateLatestRound } from "@/lib/utils";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const latestRound = estimateLatestRound();
@@ -33,14 +33,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // 최근 200회차만 sitemap에 포함 (검색엔진 효율)
+  // 유효한 전체 회차를 sitemap에 포함
   const roundPages: MetadataRoute.Sitemap = [];
-  const count = Math.min(latestRound, 200);
-  for (let i = 0; i < count; i++) {
-    const roundNo = latestRound - i;
+  for (let roundNo = latestRound; roundNo >= 1; roundNo--) {
+    const drawDate = estimateDrawDate(roundNo);
     roundPages.push({
       url: `${SITE_URL}/lotto/${roundNo}`,
-      lastModified: now,
+      lastModified: `${drawDate}T00:00:00+09:00`,
       changeFrequency: roundNo === latestRound ? "daily" : "yearly",
       priority: roundNo === latestRound ? 0.9 : 0.5,
     });

@@ -1,5 +1,16 @@
 export const SITE_NAME = "로또 당첨번호";
-export const SITE_URL = "https://lotto-peach.vercel.app";
+
+function resolveSiteUrl(): string {
+  const rawUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  try {
+    const url = new URL(rawUrl);
+    return url.origin;
+  } catch {
+    return "http://localhost:3000";
+  }
+}
+
+export const SITE_URL = resolveSiteUrl();
 export const SITE_DESCRIPTION =
   "동행복권 로또 6/45 최신 당첨번호 확인, 회차별 조회, 번호 통계, 번호 생성기를 제공합니다.";
 
