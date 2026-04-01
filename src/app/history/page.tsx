@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchMultipleRounds } from "@/lib/api";
 import { estimateLatestRound } from "@/lib/utils";
 import { generateMeta } from "@/lib/seo";
+import { SITE_URL } from "@/lib/constants";
 import Breadcrumb from "@/components/Breadcrumb";
 import HistoryContent from "./HistoryContent";
 
@@ -27,7 +28,6 @@ export async function generateMetadata({
     path: "/history",
     canonical: page === 1 ? "/history" : `/history?page=${page}`,
     noIndex: page > 1,
-    robots: page > 1 ? { index: false, follow: true } : undefined,
     images: ["/opengraph-image"],
   });
 }
@@ -42,8 +42,15 @@ export default async function HistoryPage({ searchParams }: PageProps) {
   const startRound = latestRound - (page - 1) * PAGE_SIZE;
   const rounds = await fetchMultipleRounds(startRound, PAGE_SIZE);
 
+  const prevHref = page > 1
+    ? (page === 2 ? `${SITE_URL}/history` : `${SITE_URL}/history?page=${page - 1}`)
+    : null;
+  const nextHref = page < totalPages ? `${SITE_URL}/history?page=${page + 1}` : null;
+
   return (
     <>
+      {prevHref && <link rel="prev" href={prevHref} />}
+      {nextHref && <link rel="next" href={nextHref} />}
       <Breadcrumb items={[{ label: "홈", href: "/" }, { label: "당첨번호 이력" }]} />
       <h1 className="text-xl font-bold mb-6">📋 당첨번호 이력</h1>
       <HistoryContent

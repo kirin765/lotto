@@ -40,8 +40,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     roundPages.push({
       url: `${SITE_URL}/lotto/${roundNo}`,
       lastModified: `${drawDate}T00:00:00+09:00`,
-      changeFrequency: roundNo === latestRound ? "daily" : "yearly",
-      priority: roundNo === latestRound ? 0.9 : 0.5,
+      // 당첨번호는 추첨 후 불변이므로 최신 회차 외에는 "never"
+      changeFrequency: roundNo === latestRound ? "daily" : "never",
+      priority: roundNo === latestRound ? 0.9 : roundNo >= latestRound - 9 ? 0.6 : 0.4,
     });
   }
 

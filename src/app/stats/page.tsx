@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { fetchMultipleRounds } from "@/lib/api";
 import { estimateLatestRound } from "@/lib/utils";
-import { generateMeta } from "@/lib/seo";
+import { generateMeta, generateItemListJsonLd } from "@/lib/seo";
+import { SITE_URL } from "@/lib/constants";
+import JsonLd from "@/components/JsonLd";
 import Breadcrumb from "@/components/Breadcrumb";
 import StatsContent from "./StatsContent";
 import type { NumberStat } from "@/types/lotto";
@@ -48,8 +50,22 @@ export default async function StatsPage() {
   const rounds = await fetchMultipleRounds(latestRound, count);
   const stats = rounds.length > 0 ? computeStats(rounds) : [];
 
+  const top10 = [...stats]
+    .sort((a, b) => b.frequency - a.frequency)
+    .slice(0, 10);
+
+  const itemListJsonLd = generateItemListJsonLd(
+    `로또 6/45 번호별 출현 통계 Top 10 (최근 ${count}회차)`,
+    top10.map((s, i) => ({
+      position: i + 1,
+      name: `번호 ${s.number} — ${s.frequency}회 출현`,
+      url: `${SITE_URL}/stats`,
+    }))
+  );
+
   return (
     <>
+      <JsonLd data={itemListJsonLd} />
       <Breadcrumb items={[{ label: "홈", href: "/" }, { label: "번호 통계" }]} />
       <h1 className="text-xl font-bold mb-2">📊 번호 통계</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">

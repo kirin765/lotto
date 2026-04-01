@@ -53,7 +53,7 @@ export function generateMeta({
     robots:
       robots ??
       (noIndex
-        ? { index: false, follow: false }
+        ? { index: false, follow: true }
         : { index: true, follow: true }),
   };
 }
@@ -74,11 +74,24 @@ export function generateRoundJsonLd(
     datePublished: date,
     dateModified: date,
     description: `로또 6/45 제 ${roundNo}회 당첨번호: ${numbers.join(", ")} + 보너스 ${bonusNo}`,
+    keywords: ["로또", "로또 당첨번호", "로또 6/45", `제${roundNo}회`, "동행복권"],
+    inLanguage: "ko",
     image: `${pageUrl}/opengraph-image`,
+    author: {
+      "@type": "Organization",
+      name: "동행복권",
+      url: "https://dhlottery.co.kr",
+    },
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,
       url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/icon-192.png`,
+        width: 192,
+        height: 192,
+      },
     },
   };
 }
@@ -91,6 +104,14 @@ export function generateWebsiteJsonLd() {
     url: SITE_URL,
     description: SITE_DESCRIPTION,
     inLanguage: "ko",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/lotto/{search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 
@@ -105,6 +126,40 @@ export function generateBreadcrumbJsonLd(
       position: i + 1,
       name: item.name,
       item: item.url,
+    })),
+  };
+}
+
+export function generateFAQJsonLd(
+  items: { question: string; answer: string }[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}
+
+export function generateItemListJsonLd(
+  name: string,
+  items: { name: string; url: string; position: number }[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    itemListElement: items.map((item) => ({
+      "@type": "ListItem",
+      position: item.position,
+      name: item.name,
+      url: item.url,
     })),
   };
 }
