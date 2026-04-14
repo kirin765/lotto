@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { fetchLottoRound } from "@/lib/api";
 import { formatDate, estimateLatestRound } from "@/lib/utils";
-import { generateMeta, generateRoundJsonLd } from "@/lib/seo";
+import { generateMeta, generateRoundJsonLd, generateWebPageJsonLd } from "@/lib/seo";
 import Breadcrumb from "@/components/Breadcrumb";
 import JsonLd from "@/components/JsonLd";
 import RoundContent from "./RoundContent";
@@ -73,14 +73,23 @@ export default async function RoundPage({ params }: PageProps) {
   return (
     <>
       {round && (
-        <JsonLd
-          data={generateRoundJsonLd(
-            round.roundNo,
-            round.drawDate,
-            round.numbers,
-            round.bonusNo
-          )}
-        />
+        <>
+          <JsonLd
+            data={generateRoundJsonLd(
+              round.roundNo,
+              round.drawDate,
+              round.numbers,
+              round.bonusNo
+            )}
+          />
+          <JsonLd
+            data={generateWebPageJsonLd({
+              title: `제 ${round.roundNo}회 로또 당첨번호`,
+              description: `${formatDate(round.drawDate)} 추첨된 제 ${round.roundNo}회 로또 6/45 당첨번호 ${round.numbers.join(", ")}와 보너스 번호 ${round.bonusNo}를 확인할 수 있는 회차 상세 페이지입니다.`,
+              path: `/lotto/${round.roundNo}`,
+            })}
+          />
+        </>
       )}
 
       <Breadcrumb

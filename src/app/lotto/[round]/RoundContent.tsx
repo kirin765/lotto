@@ -102,6 +102,10 @@ export default function RoundContent({ serverData, roundNo, latestRound }: Round
         >
           {formatDate(round.drawDate)} 추첨
         </time>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-600 dark:text-gray-300">
+          제 {round.roundNo}회 로또 6/45 당첨번호는 {round.numbers.join(", ")}이며,
+          보너스 번호는 {round.bonusNo}번입니다.
+        </p>
       </div>
 
       <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 shadow-sm">

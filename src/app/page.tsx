@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { fetchLatestRound } from "@/lib/api";
 import { estimateLatestRound, formatDate } from "@/lib/utils";
-import { generateMeta, generateRoundJsonLd, generateFAQJsonLd } from "@/lib/seo";
+import {
+  generateFAQJsonLd,
+  generateMeta,
+  generateRoundJsonLd,
+  generateWebPageJsonLd,
+} from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 import HomeContent from "./HomeContent";
 
@@ -55,9 +60,16 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const round = await fetchLatestRound();
   const latestRound = estimateLatestRound();
+  const pageJsonLd = generateWebPageJsonLd({
+    title: "로또 6/45 최신 당첨번호",
+    description:
+      "동행복권 로또 6/45 최신 당첨번호와 보너스 번호, 당첨금 정보를 빠르게 확인할 수 있는 페이지입니다.",
+    path: "/",
+  });
 
   return (
     <>
+      <JsonLd data={pageJsonLd} />
       {round && (
         <JsonLd
           data={generateRoundJsonLd(
@@ -70,6 +82,20 @@ export default async function HomePage() {
       )}
       <JsonLd data={generateFAQJsonLd(FAQ_ITEMS)} />
       <HomeContent serverData={round} latestRound={latestRound} />
+      {round && (
+        <section
+          aria-label="최신 회차 요약"
+          className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-4 text-sm leading-7 text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-100"
+        >
+          <h2 className="mb-2 text-base font-bold">최신 회차 요약</h2>
+          <p>
+            제 {round.roundNo}회 로또 6/45 추첨일은 {formatDate(round.drawDate)}이며,
+            당첨번호는 {round.numbers.join(", ")}이고 보너스 번호는 {round.bonusNo}
+            번입니다. 이 페이지에서는 최신 회차 결과와 함께 당첨금 정보, 이전 회차
+            이동, 전체 이력과 번호 통계 페이지로의 탐색을 제공합니다.
+          </p>
+        </section>
+      )}
       <section aria-label="자주 묻는 질문" className="mt-10">
         <h2 className="text-base font-bold text-gray-700 dark:text-gray-300 mb-4">자주 묻는 질문</h2>
         <dl className="space-y-4">

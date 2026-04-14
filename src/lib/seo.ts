@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "./constants";
+import {
+  SITE_DESCRIPTION,
+  SITE_LANGUAGE,
+  SITE_LOCALE,
+  SITE_NAME,
+  SITE_TOPIC,
+  SITE_URL,
+} from "./constants";
 
 interface SeoParams {
   title?: string;
@@ -40,7 +47,7 @@ export function generateMeta({
       description,
       url,
       siteName: SITE_NAME,
-      locale: "ko_KR",
+      locale: SITE_LOCALE,
       type: openGraphType,
       images: ogImages.length > 0 ? ogImages : undefined,
     },
@@ -103,15 +110,61 @@ export function generateWebsiteJsonLd() {
     name: SITE_NAME,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    inLanguage: "ko",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/lotto/{search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
+    inLanguage: SITE_LANGUAGE,
+    about: SITE_TOPIC,
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
     },
+  };
+}
+
+export function generateOrganizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    inLanguage: SITE_LANGUAGE,
+    knowsAbout: [
+      "로또 6/45 당첨번호",
+      "회차별 로또 결과",
+      "로또 번호 통계",
+      "로또 번호 생성",
+    ],
+  };
+}
+
+interface WebPageJsonLdParams {
+  title: string;
+  description: string;
+  path?: string;
+  type?: "WebPage" | "CollectionPage" | "AboutPage";
+}
+
+export function generateWebPageJsonLd({
+  title,
+  description,
+  path = "",
+  type = "WebPage",
+}: WebPageJsonLdParams) {
+  const url = path.startsWith("http") ? path : `${SITE_URL}${path}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": type,
+    name: title,
+    url,
+    description,
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    about: SITE_TOPIC,
+    inLanguage: SITE_LANGUAGE,
   };
 }
 

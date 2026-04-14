@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
-import { generateWebsiteJsonLd } from "@/lib/seo";
+import {
+  SITE_DESCRIPTION,
+  SITE_LANGUAGE,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/constants";
+import { generateOrganizationJsonLd, generateWebsiteJsonLd } from "@/lib/seo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
@@ -100,7 +105,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="geo.region" content="KR-11" />
+        <meta name="geo.placename" content="Seoul" />
+        <meta name="language" content="Korean" />
+        <meta httpEquiv="content-language" content={SITE_LANGUAGE} />
         <JsonLd data={generateWebsiteJsonLd()} />
+        <JsonLd data={generateOrganizationJsonLd()} />
       </head>
       <body className="min-h-dvh flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
         <Header />

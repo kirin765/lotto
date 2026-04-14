@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { fetchMultipleRounds } from "@/lib/api";
 import { estimateLatestRound } from "@/lib/utils";
-import { generateMeta, generateItemListJsonLd } from "@/lib/seo";
+import { generateItemListJsonLd, generateMeta, generateWebPageJsonLd } from "@/lib/seo";
 import { SITE_URL } from "@/lib/constants";
 import JsonLd from "@/components/JsonLd";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -62,14 +62,25 @@ export default async function StatsPage() {
       url: `${SITE_URL}/stats`,
     }))
   );
+  const pageJsonLd = generateWebPageJsonLd({
+    title: "로또 번호 통계",
+    description: `최근 ${count}회차를 기준으로 번호별 출현 빈도와 최근 출현 회차를 보여주는 통계 페이지입니다.`,
+    path: "/stats",
+    type: "CollectionPage",
+  });
 
   return (
     <>
+      <JsonLd data={pageJsonLd} />
       <JsonLd data={itemListJsonLd} />
       <Breadcrumb items={[{ label: "홈", href: "/" }, { label: "번호 통계" }]} />
       <h1 className="text-xl font-bold mb-2">📊 번호 통계</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
         최근 {count}회차 기준 번호별 출현 통계
+      </p>
+      <p className="mb-6 text-sm leading-6 text-gray-600 dark:text-gray-300">
+        이 페이지는 최근 {count}회차의 로또 6/45 결과를 바탕으로 각 번호의 출현 빈도,
+        마지막 출현 회차, 평균 출현 간격을 정리합니다.
       </p>
       <StatsContent serverStats={stats} count={count} latestRound={latestRound} />
     </>
