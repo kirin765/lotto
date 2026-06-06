@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "kr.lotto6.twa",
+    "sha256_cert_fingerprints": ["BB:1F:A7:43:1F:5A:C4:5A:01:C0:79:2C:C4:E2:31:6D:46:4B:33:7F:F0:D2:EF:44:D5:D1:A7:A3:F7:61:75:71"]
+  }
+}]
