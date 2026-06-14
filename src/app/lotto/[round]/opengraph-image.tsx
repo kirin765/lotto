@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "@/lib/constants";
 
-export const runtime = "edge";
+// 과거 회차 당첨번호는 불변 → 회차당 1회만 렌더 후 영구 캐시
+export const revalidate = 31536000;
 export const contentType = "image/png";
 export const size = {
   width: 1200,
@@ -23,7 +24,10 @@ async function fetchRoundNumbers(roundNo: number): Promise<{ numbers: number[]; 
   try {
     const query = `로또 ${roundNo}회 당첨번호`;
     const url = `${NAVER_SEARCH}?where=m&query=${encodeURIComponent(query)}`;
-    const res = await fetch(url, { headers: { "User-Agent": UA } });
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA },
+      next: { revalidate: false },
+    });
     if (!res.ok) return null;
     const html = await res.text();
     const roundMatch = html.match(/data-text="(\d+)회차\s*\((\d{4}\.\d{2}\.\d{2})\.\)"/);

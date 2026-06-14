@@ -7,6 +7,9 @@ import Breadcrumb from "@/components/Breadcrumb";
 import JsonLd from "@/components/JsonLd";
 import RoundContent from "./RoundContent";
 
+// 과거 회차는 불변 → ISR로 회차당 1회만 SSR 후 캐시 서빙
+export const revalidate = 86400;
+
 interface PageProps {
   params: Promise<{ round: string }>;
 }
