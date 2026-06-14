@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "@/lib/constants";
 
-// 과거 회차 당첨번호는 불변 → 회차당 1회만 렌더 후 영구 캐시
+export const runtime = "edge";
+// 과거 회차 당첨번호는 불변 → 회차당 1회만 렌더 후 영구 캐시 (edge+revalidate = CDN HIT)
 export const revalidate = 31536000;
 export const contentType = "image/png";
 export const size = {
