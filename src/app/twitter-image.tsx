@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 import { SITE_NAME } from "@/lib/constants";
 
 export const runtime = "edge";
+// 최신 회차 표시 → 1시간 캐시
+export const revalidate = 3600;
 export const contentType = "image/png";
 export const size = {
   width: 1200,
