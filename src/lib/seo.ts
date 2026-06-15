@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import {
+  PLAY_STORE_URL,
   SITE_DESCRIPTION,
   SITE_LANGUAGE,
   SITE_LOCALE,
@@ -197,6 +198,32 @@ export function generateFAQJsonLd(
         text: item.answer,
       },
     })),
+  };
+}
+
+export function generateAppJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MobileApplication",
+    name: `${SITE_NAME} 앱`,
+    operatingSystem: "ANDROID",
+    applicationCategory: "UtilitiesApplication",
+    inLanguage: SITE_LANGUAGE,
+    url: PLAY_STORE_URL,
+    installUrl: PLAY_STORE_URL,
+    downloadUrl: PLAY_STORE_URL,
+    description:
+      "동행복권 로또 6/45 최신 당첨번호를 추첨 직후 바로 확인하고, 전 회차 조회·번호 통계·번호 생성기를 무료로 제공하는 안드로이드 앱입니다.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "KRW",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
   };
 }
 

@@ -2,6 +2,9 @@ export const SITE_NAME = "로또 당첨번호";
 export const SITE_LOCALE = "ko_KR";
 export const SITE_LANGUAGE = "ko";
 
+export const ANDROID_PACKAGE = "kr.lotto6.twa";
+export const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
+
 function resolveSiteUrl(): string {
   const rawUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   try {
