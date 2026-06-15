@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import AppInstallBanner from "@/components/AppInstallBanner";
+import ReviewPrompt from "@/components/ReviewPrompt";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -121,6 +122,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <AppInstallBanner />
+        <ReviewPrompt />
         <Analytics />
       </body>
     </html>
