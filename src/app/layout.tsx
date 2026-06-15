@@ -9,6 +9,7 @@ import { generateOrganizationJsonLd, generateWebsiteJsonLd } from "@/lib/seo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import AppInstallBanner from "@/components/AppInstallBanner";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -119,6 +120,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <AppInstallBanner />
         <Analytics />
       </body>
     </html>

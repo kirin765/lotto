@@ -5,6 +5,7 @@ import { formatDate, estimateLatestRound } from "@/lib/utils";
 import { generateMeta, generateRoundJsonLd, generateWebPageJsonLd } from "@/lib/seo";
 import Breadcrumb from "@/components/Breadcrumb";
 import JsonLd from "@/components/JsonLd";
+import AppPromo from "@/components/AppPromo";
 import RoundContent from "./RoundContent";
 
 // 과거 회차는 불변 → ISR로 회차당 1회만 SSR 후 캐시 서빙
@@ -107,6 +108,7 @@ export default async function RoundPage({ params }: PageProps) {
       />
 
       <RoundContent serverData={round} roundNo={roundNo} latestRound={latestRound} />
+      <AppPromo />
     </>
   );
 }

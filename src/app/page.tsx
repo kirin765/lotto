@@ -8,6 +8,7 @@ import {
   generateWebPageJsonLd,
 } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
+import AppPromo from "@/components/AppPromo";
 import HomeContent from "./HomeContent";
 
 export const revalidate = 3600;
@@ -82,6 +83,7 @@ export default async function HomePage() {
       )}
       <JsonLd data={generateFAQJsonLd(FAQ_ITEMS)} />
       <HomeContent serverData={round} latestRound={latestRound} />
+      <AppPromo />
       {round && (
         <section
           aria-label="최신 회차 요약"
