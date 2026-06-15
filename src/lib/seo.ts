@@ -39,7 +39,7 @@ export function generateMeta({
   );
 
   return {
-    title: fullTitle,
+    title: { absolute: fullTitle },
     description,
     alternates: { canonical: url },
     openGraph: {
