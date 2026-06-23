@@ -51,10 +51,15 @@ export default function RoundContent({ serverData, roundNo, latestRound }: Round
   }, [roundNo]);
 
   useEffect(() => {
-    if (!serverData) fetchFromProxy();
-  }, [serverData, fetchFromProxy]);
+    // 최신 회차가 당첨금 미발표 상태로 장기 캐시된 경우 클라이언트에서 보정
+    const incompleteLatest =
+      !!serverData &&
+      serverData.roundNo === latestRound &&
+      serverData.prizes.length === 0;
+    if (!serverData || incompleteLatest) fetchFromProxy();
+  }, [serverData, latestRound, fetchFromProxy]);
 
-  if (loading) {
+  if (loading && !round) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <div className="flex gap-2">

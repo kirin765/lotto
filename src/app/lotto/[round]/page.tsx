@@ -8,8 +8,9 @@ import JsonLd from "@/components/JsonLd";
 import AppPromo from "@/components/AppPromo";
 import RoundContent from "./RoundContent";
 
-// 과거 회차는 불변 → ISR로 회차당 1회만 SSR 후 캐시 서빙
-export const revalidate = 86400;
+// 추첨 완료 회차는 불변 → 1년 캐시로 매일 재생성(재스크랩·정규식 재파싱) 제거.
+// 최신 회차가 당첨금 발표 전 캐시되는 경우만 RoundContent가 클라이언트에서 보정.
+export const revalidate = 31536000;
 // 동적 세그먼트를 on-demand ISR로 전환 (빈 배열 = 사전 빌드 없이 요청 시 생성·캐시)
 export async function generateStaticParams() {
   return [];
