@@ -19,7 +19,6 @@
 - **Language** — TypeScript (strict mode)
 - **Styling** — [Tailwind CSS 4](https://tailwindcss.com/)
 - **Deploy** — [Vercel](https://vercel.com/)
-- **Data** — [동행복권 공식 API](https://www.dhlottery.co.kr/)
 
 ## 📱 페이지 구조
 

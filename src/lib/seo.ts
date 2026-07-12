@@ -87,8 +87,8 @@ export function generateRoundJsonLd(
     image: `${pageUrl}/opengraph-image`,
     author: {
       "@type": "Organization",
-      name: "동행복권",
-      url: "https://dhlottery.co.kr",
+      name: SITE_NAME,
+      url: SITE_URL,
     },
     publisher: {
       "@type": "Organization",
