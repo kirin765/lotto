@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import type { LottoRound, DhlotteryApiResponse } from "@/types/lotto";
 import { estimateLatestRound, sortNumbers } from "./utils";
 import { SITE_URL } from "./constants";
@@ -130,21 +131,44 @@ async function fetchViaProxy(
   }
 }
 
+/** 회차 원본 데이터 조회 (네이버 스크래핑 → 실패 시 자체 프록시). 실패 시 throw하여 캐시에 남기지 않는다. */
+async function fetchRoundData(roundNo: number): Promise<DhlotteryApiResponse> {
+  let data = await fetchFromNaver(roundNo);
+  if (!data || data.drwNo !== roundNo) data = await fetchViaProxy(roundNo);
+  if (!data || data.drwNo !== roundNo) {
+    throw new Error(`round ${roundNo} unavailable`);
+  }
+  return data;
+}
+
+// 확정된 과거 회차(불변)는 영구 캐시, 최신 회차 부근은 1시간 캐시로 재시도 여지를 둔다.
+// 회차당 1회만 스크래핑+정규식 파싱하도록 해 history/stats 페이지의 반복 재파싱 CPU 비용을 제거한다.
+const getRoundLongTerm = unstable_cache(
+  fetchRoundData,
+  ["lotto-round-longterm"],
+  { revalidate: false }
+);
+const getRoundRecent = unstable_cache(
+  fetchRoundData,
+  ["lotto-round-recent"],
+  { revalidate: 3600 }
+);
+
 export async function fetchLottoRound(
   roundNo: number
 ): Promise<FetchLottoRoundResult> {
   if (roundNo < 1) return { status: "not_found" };
 
-  // 1차: 네이버 검색 스크래핑 (서버 사이드)
-  let data = await fetchFromNaver(roundNo);
-  if (data && data.drwNo !== roundNo) return { status: "not_found" };
-
-  // 2차: 자체 프록시 경유
-  if (!data) data = await fetchViaProxy(roundNo);
-  if (data && data.drwNo !== roundNo) return { status: "not_found" };
-
-  if (!data) return { status: "error" };
-  return { status: "success", round: parseLottoResponse(data) };
+  const latestRound = estimateLatestRound();
+  try {
+    const data =
+      roundNo < latestRound
+        ? await getRoundLongTerm(roundNo)
+        : await getRoundRecent(roundNo);
+    return { status: "success", round: parseLottoResponse(data) };
+  } catch {
+    return { status: "error" };
+  }
 }
 
 export async function fetchLatestRound(): Promise<LottoRound | null> {

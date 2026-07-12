@@ -12,6 +12,7 @@ import JsonLd from "@/components/JsonLd";
 import AppInstallBanner from "@/components/AppInstallBanner";
 import ReviewPrompt from "@/components/ReviewPrompt";
 import { Analytics } from "@vercel/analytics/react";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -90,6 +91,16 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-YVVQWXJX07"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-YVVQWXJX07');`}
+        </Script>
         <meta
           name="naver-site-verification"
           content="df1237c3d3cee087725d449c4ec8b4532f189628"
