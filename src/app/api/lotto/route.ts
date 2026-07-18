@@ -25,9 +25,9 @@ function parseNaverHtml(html: string) {
   const allNums = ballMatches.map((m) => parseInt(m[1], 10));
   const mainNums = allNums.slice(0, 6);
 
-  // 1~5등 당첨 정보 파싱
+  // 1~5등 당첨 정보 파싱 ("당첨 복권수" → "당첨게임 수" 등 라벨 변경에 관대하게)
   const prizePattern =
-    /<th scope="row" rowspan="\d+">(\d)등<\/th>\s*<td class="sub_title">총 당첨금<\/td>\s*<td>([\d,]+)원<\/td>[\s\S]*?당첨 복권수<\/td>\s*<td>([\d,]+)개<\/td>[\s\S]*?1개당 당첨금<\/td>\s*<td>([\d,]+)원<\/td>/g;
+    /<th scope="row" rowspan="\d+">(\d)등<\/th>\s*<td class="sub_title">총 당첨금<\/td>\s*<td>([\d,]+)원<\/td>[\s\S]*?당첨[^<]*수<\/td>\s*<td>([\d,]+)개<\/td>[\s\S]*?1개당 당첨금<\/td>\s*<td>([\d,]+)원<\/td>/g;
   const prizes = [...html.matchAll(prizePattern)].map((m) => ({
     rank: parseInt(m[1], 10),
     totalAmount: parseInt(m[2].replace(/,/g, ""), 10),

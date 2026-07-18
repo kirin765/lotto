@@ -51,9 +51,9 @@ function parseNaverHtml(html: string): DhlotteryApiResponse | null {
 
   const mainNums = ballMatches.slice(0, 6).map((m) => parseInt(m[1], 10));
 
-  // 1~5등 당첨 정보 파싱
+  // 1~5등 당첨 정보 파싱 ("당첨 복권수" → "당첨게임 수" 등 라벨 변경에 관대하게)
   const prizePattern =
-    /<th scope="row" rowspan="\d+">(\d)등<\/th>\s*<td class="sub_title">총 당첨금<\/td>\s*<td>([\d,]+)원<\/td>[\s\S]*?당첨 복권수<\/td>\s*<td>([\d,]+)개<\/td>[\s\S]*?1개당 당첨금<\/td>\s*<td>([\d,]+)원<\/td>/g;
+    /<th scope="row" rowspan="\d+">(\d)등<\/th>\s*<td class="sub_title">총 당첨금<\/td>\s*<td>([\d,]+)원<\/td>[\s\S]*?당첨[^<]*수<\/td>\s*<td>([\d,]+)개<\/td>[\s\S]*?1개당 당첨금<\/td>\s*<td>([\d,]+)원<\/td>/g;
   const prizes = [...html.matchAll(prizePattern)].map((m) => ({
     rank: parseInt(m[1], 10),
     totalAmount: parseInt(m[2].replace(/,/g, ""), 10),
@@ -143,14 +143,15 @@ async function fetchRoundData(roundNo: number): Promise<DhlotteryApiResponse> {
 
 // 확정된 과거 회차(불변)는 영구 캐시, 최신 회차 부근은 1시간 캐시로 재시도 여지를 둔다.
 // 회차당 1회만 스크래핑+정규식 파싱하도록 해 history/stats 페이지의 반복 재파싱 CPU 비용을 제거한다.
+// v2: 당첨금 파싱 실패 상태로 저장된 v1 캐시를 버리기 위한 키 버전
 const getRoundLongTerm = unstable_cache(
   fetchRoundData,
-  ["lotto-round-longterm"],
+  ["lotto-round-longterm-v2"],
   { revalidate: false }
 );
 const getRoundRecent = unstable_cache(
   fetchRoundData,
-  ["lotto-round-recent"],
+  ["lotto-round-recent-v2"],
   { revalidate: 3600 }
 );
 
