@@ -28,7 +28,6 @@ export async function generateMetadata({
       "로또 6/45 전체 회차 당첨번호 이력을 확인하세요. 최신 회차부터 과거 회차까지 모든 당첨번호를 제공합니다.",
     path: "/history",
     canonical: page === 1 ? "/history" : `/history?page=${page}`,
-    noIndex: page > 1,
     images: ["/opengraph-image"],
   });
 }

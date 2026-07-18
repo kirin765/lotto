@@ -22,6 +22,26 @@ function parseResponse(data: DhlotteryApiResponse): LottoRound {
   };
 }
 
+function pageHref(p: number): string {
+  return p === 1 ? "/history" : `/history?page=${p}`;
+}
+
+function buildPageList(page: number, totalPages: number): (number | "…")[] {
+  const pages = new Set<number>([1, totalPages]);
+  for (let p = page - 2; p <= page + 2; p++) {
+    if (p >= 1 && p <= totalPages) pages.add(p);
+  }
+  const sorted = [...pages].sort((a, b) => a - b);
+  const out: (number | "…")[] = [];
+  let prev = 0;
+  for (const p of sorted) {
+    if (prev && p - prev > 1) out.push("…");
+    out.push(p);
+    prev = p;
+  }
+  return out;
+}
+
 interface HistoryContentProps {
   serverRounds: LottoRound[];
   page: number;
@@ -112,21 +132,41 @@ export default function HistoryContent({
       </div>
 
       {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-2 mt-8" aria-label="페이지 이동">
+        <nav className="flex flex-wrap items-center justify-center gap-2 mt-8" aria-label="페이지 이동">
           {page > 1 && (
             <Link
-              href={`/history?page=${page - 1}`}
+              href={pageHref(page - 1)}
               className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               ← 이전
             </Link>
           )}
-          <span className="text-sm text-gray-500 dark:text-gray-400 px-2">
-            {page} / {totalPages}
-          </span>
+          {buildPageList(page, totalPages).map((p, i) =>
+            p === "…" ? (
+              <span key={`gap-${i}`} className="px-1 text-sm text-gray-400 dark:text-gray-500">
+                …
+              </span>
+            ) : p === page ? (
+              <span
+                key={p}
+                aria-current="page"
+                className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium"
+              >
+                {p}
+              </span>
+            ) : (
+              <Link
+                key={p}
+                href={pageHref(p)}
+                className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                {p}
+              </Link>
+            )
+          )}
           {page < totalPages && (
             <Link
-              href={`/history?page=${page + 1}`}
+              href={pageHref(page + 1)}
               className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               다음 →

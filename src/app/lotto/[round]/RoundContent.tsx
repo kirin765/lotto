@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { LottoRound, DhlotteryApiResponse } from "@/types/lotto";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatPrize } from "@/lib/utils";
 import LottoBalls from "@/components/LottoBalls";
 import PrizeTable from "@/components/PrizeTable";
 import RoundNav from "@/components/RoundNav";
@@ -110,6 +110,12 @@ export default function RoundContent({ serverData, roundNo, latestRound }: Round
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-600 dark:text-gray-300">
           제 {round.roundNo}회 로또 6/45 당첨번호는 {round.numbers.join(", ")}이며,
           보너스 번호는 {round.bonusNo}번입니다.
+          {round.firstPrizeWinners > 0 && round.firstPrizeAmount > 0 && (
+            <>
+              {" "}1등은 총 {round.firstPrizeWinners}명이 당첨되어 1인당{" "}
+              {formatPrize(round.firstPrizeAmount)}을 받았습니다.
+            </>
+          )}
         </p>
       </div>
 
