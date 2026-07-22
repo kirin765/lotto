@@ -65,9 +65,11 @@ export default function PrizeTable({ round }: PrizeTableProps) {
           )}
         </tbody>
       </table>
-      <p className="mt-3 text-xs text-gray-400 dark:text-gray-500 text-center">
-        총 판매금액: {formatPrize(round.totalSalesAmount)}
-      </p>
+      {round.totalSalesAmount > 0 && (
+        <p className="mt-3 text-xs text-gray-400 dark:text-gray-500 text-center">
+          총 판매금액: {formatPrize(round.totalSalesAmount)}
+        </p>
+      )}
     </div>
   );
 }

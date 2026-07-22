@@ -65,10 +65,12 @@ function parseNaverHtml(html: string): DhlotteryApiResponse | null {
   const firstWinamnt = first?.perAmount ?? 0;
   const firstPrzwnerCo = first?.winnerCount ?? 0;
 
-  const amounts = [...html.matchAll(/([\d,]+)원/g)].map((m) =>
-    parseInt(m[1].replace(/,/g, ""), 10)
-  );
-  const totSellamnt = amounts.length > 0 ? Math.max(...amounts) : 0;
+  // 판매금액은 일부 회차에만 "총 구매금액" 라벨로 노출된다.
+  // 라벨 없이 페이지 내 최대 금액을 쓰면 1등 총 당첨금이 판매금액으로 잘못 들어간다.
+  const salesMatch = html.match(/총 구매금액\s*:\s*([\d,]+)원/);
+  const totSellamnt = salesMatch
+    ? parseInt(salesMatch[1].replace(/,/g, ""), 10)
+    : 0;
 
   return {
     returnValue: "success",
@@ -143,15 +145,15 @@ async function fetchRoundData(roundNo: number): Promise<DhlotteryApiResponse> {
 
 // 확정된 과거 회차(불변)는 영구 캐시, 최신 회차 부근은 1시간 캐시로 재시도 여지를 둔다.
 // 회차당 1회만 스크래핑+정규식 파싱하도록 해 history/stats 페이지의 반복 재파싱 CPU 비용을 제거한다.
-// v2: 당첨금 파싱 실패 상태로 저장된 v1 캐시를 버리기 위한 키 버전
+// v3: 1등 총 당첨금이 판매금액으로 잘못 저장된 v2 캐시를 버리기 위한 키 버전
 const getRoundLongTerm = unstable_cache(
   fetchRoundData,
-  ["lotto-round-longterm-v2"],
+  ["lotto-round-longterm-v3"],
   { revalidate: false }
 );
 const getRoundRecent = unstable_cache(
   fetchRoundData,
-  ["lotto-round-recent-v2"],
+  ["lotto-round-recent-v3"],
   { revalidate: 3600 }
 );
 

@@ -39,11 +39,12 @@ function parseNaverHtml(html: string) {
   const firstWinamnt = first?.perAmount ?? 0;
   const firstPrzwnerCo = first?.winnerCount ?? 0;
 
-  // 총 판매금액
-  const amounts = [...html.matchAll(/([\d,]+)원/g)].map((m) =>
-    parseInt(m[1].replace(/,/g, ""), 10)
-  );
-  const totSellamnt = amounts.length > 0 ? Math.max(...amounts) : 0;
+  // 판매금액은 일부 회차에만 "총 구매금액" 라벨로 노출된다.
+  // 라벨 없이 페이지 내 최대 금액을 쓰면 1등 총 당첨금이 판매금액으로 잘못 들어간다.
+  const salesMatch = html.match(/총 구매금액\s*:\s*([\d,]+)원/);
+  const totSellamnt = salesMatch
+    ? parseInt(salesMatch[1].replace(/,/g, ""), 10)
+    : 0;
 
   return {
     returnValue: "success",
