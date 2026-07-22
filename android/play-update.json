@@ -1,0 +1,18 @@
+{
+  "packageName": "kr.lotto6.twa",
+  "aab": "/Users/kiwankim/projects/games/lotto/android/app/build/outputs/bundle/release/app-release.aab",
+  "track": "production",
+  "graphicsLanguage": "ko-KR",
+  "images": {
+    "phoneScreenshots": [
+      "/Users/kiwankim/projects/games/lotto/tmp/framed/01.png",
+      "/Users/kiwankim/projects/games/lotto/tmp/framed/02.png",
+      "/Users/kiwankim/projects/games/lotto/tmp/framed/03.png",
+      "/Users/kiwankim/projects/games/lotto/tmp/framed/04.png"
+    ]
+  },
+  "releaseNotes": {
+    "ko-KR": "웹뷰를 걷어내고 앱을 네이티브로 새로 만들었습니다.\n- 전 회차 당첨번호를 앱에 내장해 오프라인에서도 조회 가능\n- 회차 검색·이전/다음 회차 이동\n- 번호 통계(최근 50/100회·전체) 즉시 계산\n- 번호 생성기(제외번호 선택)\n- 앱 실행 속도와 반응성 개선",
+    "en-US": "Rebuilt as a fully native app (no more web view).\n- All past draws bundled in the app; works offline\n- Round search and prev/next navigation\n- Instant number statistics (last 50/100 draws or all)\n- Number generator with exclusions\n- Faster startup and smoother navigation"
+  }
+}
