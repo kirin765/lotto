@@ -1,0 +1,6 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Lotto645" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#0A0A0A</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+    </style>
+</resources>
