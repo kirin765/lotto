@@ -96,6 +96,8 @@ fun LottoApp(
                 round = current,
                 isLatest = current != null && current.roundNo == state.latest?.roundNo,
                 loading = state.loading,
+                prevRound = state.prevRound,
+                nextRound = state.nextRound,
                 onSelectRound = onSelectRound,
                 modifier = contentModifier,
             )

@@ -35,6 +35,8 @@ fun HomeScreen(
     round: LottoRound?,
     isLatest: Boolean,
     loading: Boolean,
+    prevRound: Int?,
+    nextRound: Int?,
     onSelectRound: (Int?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -103,15 +105,15 @@ fun HomeScreen(
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(
-                onClick = { onSelectRound(round.roundNo - 1) },
-                enabled = round.roundNo > 1,
+                onClick = { prevRound?.let(onSelectRound) },
+                enabled = prevRound != null,
                 modifier = Modifier.weight(1f),
-            ) { Text("← ${round.roundNo - 1}회") }
+            ) { Text("← ${prevRound ?: round.roundNo - 1}회") }
             OutlinedButton(
-                onClick = { onSelectRound(round.roundNo + 1) },
-                enabled = !isLatest,
+                onClick = { nextRound?.let(onSelectRound) },
+                enabled = nextRound != null,
                 modifier = Modifier.weight(1f),
-            ) { Text("${round.roundNo + 1}회 →") }
+            ) { Text("${nextRound ?: round.roundNo + 1}회 →") }
         }
         if (!isLatest) {
             Button(

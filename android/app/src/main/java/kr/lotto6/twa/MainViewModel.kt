@@ -23,6 +23,12 @@ data class LottoUiState(
     val latest: LottoRound? get() = rounds.firstOrNull()
     val current: LottoRound?
         get() = selectedRound?.let { no -> rounds.firstOrNull { it.roundNo == no } } ?: latest
+
+    // rounds는 회차 내림차순. 빠진 회차(원본에서 못 가져온 회차)를 건너뛰고 실제 있는 이웃을 가리킨다.
+    val prevRound: Int?
+        get() = current?.let { c -> rounds.firstOrNull { it.roundNo < c.roundNo }?.roundNo }
+    val nextRound: Int?
+        get() = current?.let { c -> rounds.lastOrNull { it.roundNo > c.roundNo }?.roundNo }
 }
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {

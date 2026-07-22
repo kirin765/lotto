@@ -17,7 +17,7 @@ interface RoundStore {
  */
 class RoundRepository(
     private val store: RoundStore,
-    private val api: LottoApi = LottoApi(),
+    private val api: RoundSource = LottoApi(),
 ) {
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val mutex = Mutex()
@@ -30,18 +30,22 @@ class RoundRepository(
         snapshot()
     }
 
-    /** 최신 회차를 확인하고 빠진 회차를 채운다. 새 회차를 하나라도 받으면 true. */
+    /**
+     * 최신 회차를 확인하고 빠진 회차를 채운다. 새 회차를 하나라도 받으면 true.
+     *
+     * 한 번에 [maxFetch]개까지만 받되 남은 구멍은 매번 다시 계산하므로, 오래 앱을 열지 않아
+     * 공백이 [maxFetch]보다 커져도 이후 실행에서 이어서 채워진다.
+     */
     suspend fun refresh(maxFetch: Int = 30): Boolean {
         mutex.withLock { loadLocked() }
-        val latest = api.fetchRound(null) ?: return false
+        val latest = api.fetchRound(null)?.takeIf { it.isValid() } ?: return false
+        val gaps = mutex.withLock {
+            ((bundledMax + 1) until latest.roundNo).filterNot { byRound.containsKey(it) }
+        }
         val fetched = mutableListOf(latest)
-        val knownMax = mutex.withLock { byRound.keys.maxOrNull() ?: 0 }
-        if (latest.roundNo > knownMax + 1) {
-            val from = (latest.roundNo - maxFetch).coerceAtLeast(knownMax + 1)
-            for (no in from until latest.roundNo) {
-                if (mutex.withLock { byRound.containsKey(no) }) continue
-                api.fetchRound(no)?.let { fetched.add(it) }
-            }
+        // 최신 쪽부터 채운다 — 사용자가 먼저 보는 회차다.
+        for (no in gaps.takeLast(maxFetch)) {
+            api.fetchRound(no)?.takeIf { it.isValid() && it.roundNo == no }?.let { fetched.add(it) }
         }
         return mutex.withLock {
             val added = fetched.filter { byRound[it.roundNo] != it }

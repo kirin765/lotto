@@ -31,13 +31,18 @@ private data class ApiRound(
     val prizes: List<ApiPrize> = emptyList(),
 )
 
+/** 회차 조회 경로. 테스트에서 대체할 수 있게 인터페이스로 둔다. */
+interface RoundSource {
+    /** [drwNo]가 null이면 최신 회차. 실패 시 null. */
+    suspend fun fetchRound(drwNo: Int? = null): LottoRound?
+}
+
 /** 회차 데이터 원본. 앱이 직접 조회해 로컬에 적재하고, 화면 렌더링·통계는 전부 기기에서 처리한다. */
-class LottoApi(private val baseUrl: String = "https://lotto6.kr/api/lotto") {
+class LottoApi(private val baseUrl: String = "https://lotto6.kr/api/lotto") : RoundSource {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    /** [drwNo]가 null이면 최신 회차를 조회한다. 실패 시 null. */
-    suspend fun fetchRound(drwNo: Int? = null): LottoRound? = withContext(Dispatchers.IO) {
+    override suspend fun fetchRound(drwNo: Int?): LottoRound? = withContext(Dispatchers.IO) {
         fromApi(drwNo) ?: fromNaver(drwNo)
     }
 
